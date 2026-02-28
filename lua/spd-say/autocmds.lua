@@ -10,7 +10,7 @@ local utils = require("spd-say.utils")
 vim.api.nvim_create_autocmd("BufEnter", {
 	group = group,
 	callback = function()
-		if (not opts.enabled) or (not opts.auto_set_patterns) then
+		if (not opts.enabled) or not opts.auto_set_patterns then
 			return
 		end
 		if vim.bo.buftype ~= "" then
@@ -27,7 +27,7 @@ local queued_pronunciation_table = {}
 
 local last_cursormove_word = ""
 local last_cursormove_sentence = ""
-local last_cursormove_line = ""
+local last_cursormove_row = -1
 
 -- Graceful exit!
 vim.api.nvim_create_autocmd("VimLeavePre", {
@@ -65,15 +65,26 @@ local function handle_cursor_sentence()
 end
 
 local function handle_cursor_line()
-	local line = vim.api.nvim_get_current_line()
-	if line == last_cursormove_line then
+	local row = vim.api.nvim_win_get_cursor(0)[1]
+	if row == last_cursormove_row then
 		return
 	end
 
-	last_cursormove_line = line
-	queued_text = line
+	last_cursormove_row = row
+	queued_text = vim.api.nvim_get_current_line()
 	queued_pronunciation_table = pronunciation.lines
 end
+
+vim.api.nvim_create_autocmd("ModeChanged", {
+	group = group,
+	callback = function()
+		if vim.api.nvim_get_mode().mode == "n" then
+			--			last_cursormove_row = vim.api.nvim_win_get_cursor(0)[1] -- Prevent rereading of entire paragraph.
+			last_cursormove_word = ""
+			last_cursormove_sentence = ""
+		end
+	end,
+})
 
 vim.api.nvim_create_autocmd("CursorMoved", {
 	group = group,
@@ -82,9 +93,6 @@ vim.api.nvim_create_autocmd("CursorMoved", {
 			return
 		end
 		if vim.api.nvim_get_mode().mode ~= "n" then
-			last_cursormove_word = ""
-			last_cursormove_sentence = ""
-			last_cursormove_line = ""
 			return
 		end
 

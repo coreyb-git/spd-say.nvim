@@ -25,7 +25,7 @@ return {
 		before = 100,
 		after = 100,
 		short = 250,
-		long = 1000,
+		long = 750,
 	},
 	spd_say_cmd = "spd-say",
 	spd_say_flags = {
