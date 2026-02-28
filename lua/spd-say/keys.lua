@@ -4,10 +4,11 @@ local speak = require("spd-say.speak")
 
 vim.keymap.set("n", opts.keys.toggle, "<cmd>SpdSayToggle<cr>", { desc = "[V]oice Reader Toggle (spd-say)" })
 
+-- say last word before moving down a line.
 vim.keymap.set("i", "<CR>", function()
 	local last_word = utils.get_prior_word()
 	local last_char = last_word:sub(-1)
-	if not utils.is_trigger_char(last_char) then
+	if not utils.is_trigger_char(last_char, opts.triggers) then
 		speak.say(last_word)
 	end
 

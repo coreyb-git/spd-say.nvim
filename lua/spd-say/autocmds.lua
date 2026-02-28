@@ -1,8 +1,33 @@
 local group = vim.api.nvim_create_augroup("spd-say", { clear = true })
 
+local pronunciation = require("spd-say.pronunciation")
+
 local opts = require("spd-say.opts")
 local speak = require("spd-say.speak")
 local utils = require("spd-say.utils")
+
+---- QOL filetype settings
+vim.api.nvim_create_autocmd("BufEnter", {
+	group = group,
+	callback = function()
+		if (not opts.enabled) or (not opts.auto_set_patterns) then
+			return
+		end
+		if vim.bo.buftype ~= "" then
+			return
+		end
+
+		utils["configure_for_current_buffer()"]()
+	end,
+})
+
+-- for the word/sentence under cursor to fight over.
+local queued_text = ""
+local queued_pronunciation_table = {}
+
+local last_cursormove_word = ""
+local last_cursormove_sentence = ""
+local last_cursormove_line = ""
 
 -- Graceful exit!
 vim.api.nvim_create_autocmd("VimLeavePre", {
@@ -12,28 +37,68 @@ vim.api.nvim_create_autocmd("VimLeavePre", {
 	end,
 })
 
+local function handle_cursor_word()
+	local text = utils.get_word_under_cursor()
+	if text == " " then
+		last_cursormove_word = ""
+		return
+	end
+
+	if text == last_cursormove_word then
+		return
+	end
+
+	last_cursormove_word = text
+	queued_text = text
+	queued_pronunciation_table = pronunciation.words
+end
+
+local function handle_cursor_sentence()
+	local sentence = utils.get_sentence_under_cursor()
+	if sentence == last_cursormove_sentence then
+		return
+	end
+
+	last_cursormove_sentence = sentence
+	queued_text = sentence
+	queued_pronunciation_table = pronunciation.sentences
+end
+
+local function handle_cursor_line()
+	local line = vim.api.nvim_get_current_line()
+	if line == last_cursormove_line then
+		return
+	end
+
+	last_cursormove_line = line
+	queued_text = line
+	queued_pronunciation_table = pronunciation.lines
+end
+
 vim.api.nvim_create_autocmd("CursorMoved", {
 	group = group,
 	callback = function()
-		if (not opts.enabled) or not opts.speak_on_cursormoved then
+		if not opts.enabled then
 			return
 		end
 		if vim.api.nvim_get_mode().mode ~= "n" then
+			last_cursormove_word = ""
+			last_cursormove_sentence = ""
+			last_cursormove_line = ""
 			return
 		end
 
-		speak.say_cursor_word()
-	end,
-})
-
-vim.api.nvim_create_autocmd("CursorHoldI", {
-	group = group,
-	callback = function()
-		if (not opts.enabled) or not opts.speak_on_cursorholdi then
-			return
+		queued_text = ""
+		if opts.cursor_move.word then
+			handle_cursor_word()
 		end
-
-		speak.say_last_word()
+		if opts.cursor_move.sentence then
+			handle_cursor_sentence()
+		end
+		if opts.cursor_move.line then
+			handle_cursor_line()
+		end
+		speak.say(queued_text, queued_pronunciation_table)
 	end,
 })
 
@@ -46,7 +111,7 @@ vim.api.nvim_create_autocmd("InsertCharPre", {
 		local vocalize = false
 		local last_word = ""
 		-- trigger chars
-		if utils.is_trigger_char(vim.v.char) then
+		if utils.is_trigger_char(vim.v.char, opts.triggers) then
 			vocalize = true
 			last_word = utils.get_prior_word()
 			-- Don't repeat if the current key is a space,
@@ -56,7 +121,7 @@ vim.api.nvim_create_autocmd("InsertCharPre", {
 					vocalize = false
 				else
 					local last_char = last_word:sub(-1)
-					if utils.is_trigger_char(last_char) then
+					if utils.is_trigger_char(last_char, opts.triggers) then
 						vocalize = false
 					end
 				end
@@ -64,7 +129,7 @@ vim.api.nvim_create_autocmd("InsertCharPre", {
 		end
 
 		if vocalize then
-			speak.say(last_word .. vim.v.char) -- char isn't included in insertcharpre
+			speak.say(last_word .. vim.v.char, pronunciation.words) -- char isn't included in insertcharpre
 		end
 	end,
 })

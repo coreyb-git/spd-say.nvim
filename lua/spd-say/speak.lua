@@ -3,7 +3,6 @@ local M = {}
 local job_id = nil
 
 local opts = require("spd-say.opts")
-local utils = require("spd-say.utils")
 
 local function get_cmd()
 	local tbl = {
@@ -43,34 +42,35 @@ local function get_pause(ms)
 	return "<break time ='" .. ms .. "ms'/>"
 end
 
-local function get_speech(text)
+
+local function get_pronunciation(text, pronunciation_table)
+	text = " " .. text .. " "
+	for _, sub in ipairs(pronunciation_table) do
+		local pattern = sub[1]
+		local replacement = sub[2]
+		text = (text:gsub(pattern, " " .. replacement .. " "))
+	end
+
+	return text
+end
+
+
+local function get_speech(text, pronunciation_table)
 	text = vim.trim(text)
 	if text:len() > 0 then
-		local pronunciation = utils.get_pronunciation(text)
-		local start_pause = get_pause(opts.initial_pause_ms)
-		local end_pause = get_pause(opts.end_pause_ms)
+		local pronunciation =get_pronunciation(text, pronunciation_table)
+		local start_pause = get_pause(opts.speech_pause_ms.before)
+		local end_pause = get_pause(opts.speech_pause_ms.after)
 		local speech = "<speak>" .. start_pause .. pronunciation .. end_pause .. "</speak>"
 		return speech
 	end
 	return ""
 end
 
-local last_spoken_word = ""
-M.reset_last_spoken_word = function()
-	last_spoken_word = ""
-end
-
-M.say = function(text)
+M.say = function(text, pronunciation_table)
 	if text:len() < 1 then
 		return
 	end
-	if vim.api.nvim_get_mode().mode ~= "n" then
-		M.reset_last_spoken_word()
-	end
-	if opts.dont_repeat and (text == last_spoken_word) then
-		return
-	end
-	last_spoken_word = text
 
 	M.start_speech_engine()
 	if not job_id then
@@ -78,27 +78,12 @@ M.say = function(text)
 		return
 	end
 
-	local speech = get_speech(text)
+	local speech = get_speech(text, pronunciation_table)
+
+--	vim.notify("speech:" .. speech)
+
 	vim.fn.chansend(job_id, speech)
 	vim.fn.chansend(job_id, "\n")
-end
-
-M.say_cursor_word = function()
-	local text = utils.get_word_under_cursor()
-	if text == " " then
-		M.reset_last_spoken_word()
-		return
-	end
-
-	M.say(utils.get_word_under_cursor())
-end
-
-M.say_last_word = function()
-	M.say(utils.get_prior_word())
-end
-
-M.say_last_previous_line_last_word = function()
-	M.say(utils.get_last_word_prev_line())
 end
 
 return M

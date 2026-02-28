@@ -1,6 +1,7 @@
 local M = {}
 
 local opts = require("spd-say.opts")
+local utils = require("spd-say.utils")
 local speak = require("spd-say.speak")
 
 local function toggle()
@@ -8,6 +9,7 @@ local function toggle()
 	local s
 	if opts.enabled then
 		s = "On"
+		utils["configure_for_current_buffer()"]()
 	else
 		speak.close_speech_engine()
 		s = "off"

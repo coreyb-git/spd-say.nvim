@@ -9,15 +9,23 @@ local cursor_triggers_all = numbers_lower .. numbers_upper .. symbols_lower .. s
 
 return {
 	enabled = true,
-	initial_pause_ms = 100,
-	end_pause_ms = 100,
-	speak_on_cursormoved = true,
-	dont_repeat = true,
-	speak_on_cursorholdi = false,
+	auto_set_patterns = true,
+	cursor_move = {
+		word = true,
+		sentence = true,
+		line = true, -- whole paragraph
+	},
+
 	triggers = " ,.])>;:?",
 	triggers_under_cursor = cursor_triggers_all,
 	keys = {
 		toggle = "<leader>V", -- voice
+	},
+	speech_pause_ms = {
+		before = 100,
+		after = 100,
+		short = 500,
+		long = 1000,
 	},
 	spd_say_cmd = "spd-say",
 	spd_say_flags = {
