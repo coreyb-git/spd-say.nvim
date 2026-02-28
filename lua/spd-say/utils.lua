@@ -1,24 +1,59 @@
 local M = {}
 
 local opts = require("spd-say.opts")
--- test.
-M.get_sanitized_text = function(text)
-	local san = " " .. text .. " "
-	--
-	vim.notify("before: " .. san)
-	for symbol, replacement in pairs(opts.pronunciation) do
-		san = san:gsub(symbol, " " .. replacement .. " ")
-	end
-	vim.notify("after: " .. san)
+local pronunciation = require("spd-say.pronunciation")
 
-	return san
+M.get_pronunciation = function(text)
+	text = " " .. text .. " "
+	for _, sub in ipairs(pronunciation) do
+		local pattern = sub[1]
+		local replacement = sub[2]
+		text = (text:gsub(pattern, " " .. replacement .. " "))
+	end
+
+	return text
 end
 
-M.is_trigger_char = function(char)
-	if string.find(opts.speak_on_characters, char, 1, true) then
+M.is_trigger_char = function(char, under_cursor_triggers)
+	local triggers
+	if not under_cursor_triggers then
+		triggers = opts.triggers
+	else
+		triggers = opts.triggers_under_cursor
+	end
+	if string.find(triggers, char, 1, true) then
 		return true
 	end
 	return false
+end
+
+M.get_word_under_cursor = function()
+	local line = vim.api.nvim_get_current_line()
+	-- Column is 0-indexed, Lua strings are 1-indexed.
+	-- To look at the char the cursor is EXACTLY on, add 1.
+	local col = vim.api.nvim_win_get_cursor(0)[2] + 1
+	local char_at_cursor = line:sub(col, col)
+
+	-- IMMEDIATE STOP: If the current char is a trigger, return nothing.
+	-- Silent space chars.
+	if M.is_trigger_char(char_at_cursor, true) then
+		return char_at_cursor
+	end
+
+	-- Only if we are NOT on a trigger, expand left
+	local start = col
+	while (start > 1) and (not M.is_trigger_char(line:sub(start - 1, start - 1), true)) do
+		start = start - 1
+	end
+
+	-- Only if we are NOT on a trigger, expand right
+	local final = col
+	local max = line:len()
+	while (final < max) and (not M.is_trigger_char(line:sub(final + 1, final + 1), true)) do
+		final = final + 1
+	end
+
+	return line:sub(start, final)
 end
 
 M.get_prior_word = function()
@@ -45,17 +80,6 @@ M.get_last_word_prev_line = function()
 	local last_word = prev_line:match("(%S+)$")
 
 	return last_word or ""
-end
-
-M.toggle = function()
-	opts.enabled = not opts.enabled
-	local s
-	if opts.enabled then
-		s = "On"
-	else
-		s = "off"
-	end
-	vim.notify("Spd-Say is " .. s)
 end
 
 return M

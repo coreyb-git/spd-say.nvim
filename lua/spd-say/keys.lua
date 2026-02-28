@@ -2,7 +2,7 @@ local opts = require("spd-say.opts")
 local utils = require("spd-say.utils")
 local speak = require("spd-say.speak")
 
-vim.keymap.set("n", opts.keys.toggle, utils.toggle, { desc = "[V]oice Reader Toggle (spd-say)" })
+vim.keymap.set("n", opts.keys.toggle, "<cmd>SpdSayToggle<cr>", { desc = "[V]oice Reader Toggle (spd-say)" })
 
 vim.keymap.set("i", "<CR>", function()
 	local last_word = utils.get_prior_word()
