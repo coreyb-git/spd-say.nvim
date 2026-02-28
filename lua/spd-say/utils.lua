@@ -1,9 +1,10 @@
 local M = {}
 
 local opts = require("spd-say.opts")
-
+-- test.
 M.get_sanitized_text = function(text)
 	local san = " " .. text .. " "
+	--
 	vim.notify("before: " .. san)
 	for symbol, replacement in pairs(opts.pronunciation) do
 		san = san:gsub(symbol, " " .. replacement .. " ")
