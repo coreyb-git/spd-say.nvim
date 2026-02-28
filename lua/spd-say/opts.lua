@@ -24,7 +24,7 @@ return {
 	speech_pause_ms = {
 		before = 100,
 		after = 100,
-		short = 500,
+		short = 250,
 		long = 1000,
 	},
 	spd_say_cmd = "spd-say",
