@@ -10,6 +10,7 @@ local cursor_triggers_all = numbers_lower .. numbers_upper .. symbols_lower .. s
 return {
 	enabled = true,
 	auto_set_patterns = true,
+
 	cursor_move = {
 		word = true,
 		sentence = true,
@@ -21,23 +22,29 @@ return {
 	keys = {
 		toggle = "<leader>V", -- voice
 	},
+
 	speech_pause_ms = {
 		before = 100,
 		after = 100,
 		short = 250,
 		long = 750,
 	},
+
+	respeak_delay_ms = 100, -- how long to wait after stopping prior speech.
+
 	spd_say_cmd = "spd-say",
 	spd_say_flags = {
-		cancel = "-C -S",
+		cancel = "-S",
+
+		rate_ms = "",
+		pitch = "",
+		synthesis_voice = '--synthesis-voice "English (Great Britain)+Mr_Serious"',
+		--	synthesis_voice = "",
 
 		ssml = "--ssml",
 		pipe = "--pipe-mode",
 		priority = "--priority text",
 		punctuation_mode = "--punctuation-mode none",
-		--voice = "--synthesis-voice en-US-NYC+Steph",
-		voice = "",
-		--wait = "--wait",
 		wait = "",
 	},
 }

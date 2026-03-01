@@ -73,6 +73,10 @@ local function handle_cursor_line()
 	last_cursormove_row = row
 	queued_text = vim.api.nvim_get_current_line()
 	queued_pronunciation_table = pronunciation.lines
+
+	if vim.trim(queued_text) == "" then
+		speak.stop() -- go silent when moving to an empty line.
+	end
 end
 
 vim.api.nvim_create_autocmd("ModeChanged", {
