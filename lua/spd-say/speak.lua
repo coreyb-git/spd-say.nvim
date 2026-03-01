@@ -75,6 +75,9 @@ M.stop = function()
 end
 
 M.say = function(text, pronunciation_table)
+	if not pronunciation_table then
+		pronunciation_table = require("spd-say.pronunciation").sentences
+	end
 	if text:len() < 1 then
 		return
 	end

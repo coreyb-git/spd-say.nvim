@@ -13,7 +13,20 @@ return {
 ```
 
 Toggle on/off with the command:
+
 ```lua
 :SpdSayToggle
 
+```
+
+To speak something specific you can try:
+
+```lua
+:lua require("spd-say").say("Domo arigato, Mr Robot-o")
+```
+
+And for silence:
+
+```lua
+:lua require("spd-say").stop()
 ```
