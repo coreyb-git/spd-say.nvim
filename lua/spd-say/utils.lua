@@ -11,6 +11,7 @@ M.configure_for_code = function()
 end
 
 M.configure_for_text = function()
+	pronunciation.words = patterns.normal_speech
 	pronunciation.lines = patterns.normal_speech
 end
 
