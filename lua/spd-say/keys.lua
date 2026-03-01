@@ -6,10 +6,14 @@ local pronunciation = require("spd-say.pronunciation")
 vim.keymap.set("n", opts.keys.toggle, "<cmd>SpdSayToggle<cr>", { desc = "[V]oice Reader Toggle (spd-say)" })
 
 local function bind_carriage_return()
+	if not opts.enabled then
+		return
+	end
+
 	vim.keymap.set("i", "<CR>", function()
 		local last_word = utils.get_prior_word()
 		local last_char = last_word:sub(-1)
-		if not utils.is_trigger_char(last_char, opts.triggers) then
+		if not utils.is_trigger_char(last_char, opts.typing_triggers) then
 			speak.say(last_word, pronunciation.words)
 		end
 

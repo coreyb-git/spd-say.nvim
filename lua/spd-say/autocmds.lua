@@ -131,7 +131,7 @@ vim.api.nvim_create_autocmd("InsertCharPre", {
 		local vocalize = false
 		local last_word = ""
 		-- trigger chars
-		if utils.is_trigger_char(vim.v.char, opts.triggers) then
+		if utils.is_trigger_char(vim.v.char, opts.typing_triggers) then
 			vocalize = true
 			last_word = utils.get_prior_word()
 			-- Don't repeat if the current key is a space,
@@ -141,7 +141,7 @@ vim.api.nvim_create_autocmd("InsertCharPre", {
 					vocalize = false
 				else
 					local last_char = last_word:sub(-1)
-					if utils.is_trigger_char(last_char, opts.triggers) then
+					if utils.is_trigger_char(last_char, opts.typing_triggers) then
 						vocalize = false
 					end
 				end

@@ -78,6 +78,8 @@ M.say = function(text, pronunciation_table)
 	if not pronunciation_table then
 		pronunciation_table = require("spd-say.pronunciation").sentences
 	end
+
+	text = vim.trim(text)
 	if text:len() < 1 then
 		return
 	end
@@ -90,9 +92,6 @@ M.say = function(text, pronunciation_table)
 		end
 
 		local speech = get_speech(text, pronunciation_table)
-
-		--	vim.notify("speech:" .. speech)
-
 		vim.fn.chansend(job_id, speech)
 		vim.fn.chansend(job_id, "\n")
 	end, opts.respeak_delay_ms)

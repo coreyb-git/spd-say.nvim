@@ -5,7 +5,7 @@ local symbols_upper = '{}|~:"<>?'
 local symbols_other = " \t"
 
 --local symbols_all = numbers_lower .. numbers_upper .. symbols_lower .. symbols_upper .. symbols_other
-local cursor_triggers_all = numbers_lower .. numbers_upper .. symbols_lower .. symbols_upper .. symbols_other
+local word_stops_all = numbers_lower .. numbers_upper .. symbols_lower .. symbols_upper .. symbols_other
 
 return {
 	enabled = true,
@@ -21,8 +21,11 @@ return {
 		},
 	},
 
-	triggers = " ,.])>;:?",
-	triggers_under_cursor = cursor_triggers_all,
+	typing_triggers = " ,.])>;:?",
+
+	sentence_stops = ".!?",
+	word_stops = word_stops_all,
+
 	keys = {
 		toggle = "<leader>V", -- voice
 	},

@@ -12,6 +12,7 @@ end
 
 M.configure_for_text = function()
 	pronunciation.words = patterns.normal_speech
+	pronunciation.sentences = patterns.normal_speech
 	pronunciation.lines = patterns.normal_speech
 end
 
@@ -34,63 +35,50 @@ M.is_trigger_char = function(char, triggers)
 	return false
 end
 
-M.get_word_under_cursor = function()
-	local line = vim.api.nvim_get_current_line()
+local function get_text_between_triggers(line, start_col, triggers)
 	local max = line:len()
 
 	if max == 0 then
 		return ""
 	end
-	-- Column is 0-indexed, Lua strings are 1-indexed.
-	-- To look at the char the cursor is EXACTLY on, add 1.
-	local col = vim.api.nvim_win_get_cursor(0)[2] + 1
+
+	local col = start_col
 	local char_at_cursor = line:sub(col, col)
 
 	-- IMMEDIATE STOP: If the current char is a trigger, return nothing.
-	-- Silent space chars.
-	if M.is_trigger_char(char_at_cursor, opts.triggers_under_cursor) then
+	if M.is_trigger_char(char_at_cursor, triggers) then
 		return char_at_cursor
 	end
 
 	-- Only if we are NOT on a trigger, expand left
 	local start = col
-	while (start > 1) and (not M.is_trigger_char(line:sub(start - 1, start - 1), opts.triggers_under_cursor)) do
+	while (start > 1) and (not M.is_trigger_char(line:sub(start - 1, start - 1), triggers)) do
 		start = start - 1
 	end
 
 	-- Only if we are NOT on a trigger, expand right
 	local final = col
-	while (final < max) and (not M.is_trigger_char(line:sub(final + 1, final + 1), opts.triggers_under_cursor)) do
+	while (final < max) and (not M.is_trigger_char(line:sub(final + 1, final + 1), triggers)) do
 		final = final + 1
 	end
 
 	return line:sub(start, final)
 end
 
+M.get_word_under_cursor = function()
+	local line = vim.api.nvim_get_current_line()
+	-- Column is 0-indexed, Lua strings are 1-indexed.
+	-- To look at the char the cursor is EXACTLY on, add 1.
+	local col = vim.api.nvim_win_get_cursor(0)[2] + 1
+
+	return get_text_between_triggers(line, col, opts.word_stops)
+end
+
 M.get_sentence_under_cursor = function()
 	local line = vim.api.nvim_get_current_line()
-	local max = line:len()
-
-	if max == 0 then
-		return ""
-	end
-
 	local col = vim.api.nvim_win_get_cursor(0)[2] + 1
-	local char_at_cursor = line:sub(col, col)
 
-	local start = col
-	while (start > 1) and (line:sub(start - 1, start - 1) ~= ".") do
-		start = start - 1
-	end
-
-	local final = col
-	if char_at_cursor ~= "." then -- stay here if hitting a full stop with the cursor.
-		while (final < max) and (line:sub(final + 1, final + 1) ~= ".") do
-			final = final + 1
-		end
-	end
-
-	return line:sub(start, final)
+	return get_text_between_triggers(line, col, opts.sentence_stops)
 end
 
 M.get_prior_word = function()
