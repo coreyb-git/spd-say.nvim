@@ -9,7 +9,7 @@ local function toggle()
 	local s
 	if opts.enabled then
 		s = "On"
-		utils["configure_for_current_buffer()"]()
+		utils.configure_for_current_buffer()
 	else
 		speak.close_speech_engine()
 		s = "off"

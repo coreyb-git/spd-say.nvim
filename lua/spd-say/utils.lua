@@ -16,7 +16,7 @@ M.configure_for_text = function()
 	pronunciation.lines = patterns.normal_speech
 end
 
-M["configure_for_current_buffer()"] = function()
+M.configure_for_current_buffer = function()
 	local status, parser = pcall(vim.treesitter.get_parser, 0)
 
 	if (not status) or not parser then

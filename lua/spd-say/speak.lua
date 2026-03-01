@@ -50,7 +50,13 @@ local function get_pronunciation(text, pronunciation_table)
 	for _, sub in ipairs(pronunciation_table) do
 		local pattern = sub[1]
 		local replacement = sub[2]
-		text = (text:gsub(pattern, " " .. replacement .. " "))
+
+		if type(replacement) == "function" then
+			text = text:gsub(pattern, replacement)
+		else
+			-- If it's a string, your original padding logic works fine.
+			text = text:gsub(pattern, " " .. replacement .. " ")
+		end
 	end
 
 	return text

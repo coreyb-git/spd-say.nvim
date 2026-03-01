@@ -78,6 +78,18 @@ return {
 		{ "i%.e%.", "that is" .. token_short },
 		{ "e%.g%.", "for example" .. token_short },
 
+		-- number conversions
+		{ "%-(%d)", "negative %1" },
+
+		{
+			"(%d+)%.(%d+)",
+			function(int, frac)
+				return " " .. int .. " point " .. frac:gsub("(%d)", "%1 ") .. " "
+			end,
+		},
+
+		{ "%.(%d+)", "point %1" },
+
 		{ "%-%-", token_short },
 		{ "%s+%-%s+", "dash" },
 		{ "%s+-%s+", "minus" },

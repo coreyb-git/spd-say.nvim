@@ -17,7 +17,7 @@ vim.api.nvim_create_autocmd("BufEnter", {
 			return
 		end
 
-		utils["configure_for_current_buffer()"]()
+		utils.configure_for_current_buffer()
 	end,
 })
 
@@ -82,6 +82,10 @@ end
 vim.api.nvim_create_autocmd("ModeChanged", {
 	group = group,
 	callback = function()
+		if not opts.enabled then
+			return
+		end
+
 		local prior_mode = vim.v.event.old_mode
 		local mode = vim.api.nvim_get_mode().mode
 		if mode == "i" then
