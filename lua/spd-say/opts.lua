@@ -11,10 +11,14 @@ return {
 	enabled = true,
 	auto_set_patterns = true,
 
-	cursor_move = {
-		word = true,
-		sentence = true,
-		line = true, -- whole paragraph
+	events = {
+		finished_typing_word = true,
+
+		cursor_onto = {
+			word = true,
+			sentence = true,
+			line = true, -- whole paragraph
+		},
 	},
 
 	triggers = " ,.])>;:?",

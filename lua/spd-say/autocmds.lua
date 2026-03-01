@@ -109,13 +109,13 @@ vim.api.nvim_create_autocmd("CursorMoved", {
 		end
 
 		queued_text = ""
-		if opts.cursor_move.word then
+		if opts.events.cursor_onto.word then
 			handle_cursor_word()
 		end
-		if opts.cursor_move.sentence then
+		if opts.events.cursor_onto.sentence then
 			handle_cursor_sentence()
 		end
-		if opts.cursor_move.line then
+		if opts.events.cursor_onto.line then
 			handle_cursor_line()
 		end
 		speak.say(queued_text, queued_pronunciation_table)
@@ -124,7 +124,7 @@ vim.api.nvim_create_autocmd("CursorMoved", {
 
 vim.api.nvim_create_autocmd("InsertCharPre", {
 	callback = function()
-		if not opts.enabled then
+		if (not opts.enabled) or not opts.events.finished_typing_word then
 			return
 		end
 
