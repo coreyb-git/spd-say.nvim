@@ -11,3 +11,9 @@ return {
   opts = {},
 }
 ```
+
+Toggle on/off with the command:
+```lua
+:SpdSayToggle
+
+```
