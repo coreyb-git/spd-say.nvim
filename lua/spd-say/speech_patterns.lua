@@ -134,6 +134,7 @@ return {
 
 	code = {
 		{ "function%(%)", "anonymous function" },
+		{ "===", "is the same type and value as" },
 		{ "==", "is equal to" },
 		{ "!=", "is not equal to" },
 		{ "~=", "is not equal to" },

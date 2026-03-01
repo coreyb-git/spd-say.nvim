@@ -82,7 +82,15 @@ end
 vim.api.nvim_create_autocmd("ModeChanged", {
 	group = group,
 	callback = function()
-		if vim.api.nvim_get_mode().mode == "n" then
+		local mode = vim.api.nvim_get_mode().mode
+		if mode == "i" then
+			local prior_mode = vim.v.event.old_mode
+			if prior_mode:sub(1, 1) ~= "i" then -- if we weren't already in some form of insert mode, go quiet.
+				speak.stop()
+			end
+		end
+
+		if mode == "n" then
 			--			last_cursormove_row = vim.api.nvim_win_get_cursor(0)[1] -- Prevent rereading of entire paragraph.
 			last_cursormove_word = ""
 			last_cursormove_sentence = ""

@@ -24,7 +24,7 @@ return {
 	},
 
 	speech_pause_ms = {
-		before = 100,
+		before = 10,
 		after = 100,
 		short = 250,
 		long = 750,

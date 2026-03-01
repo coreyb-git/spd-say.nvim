@@ -78,7 +78,6 @@ M.say = function(text, pronunciation_table)
 	if text:len() < 1 then
 		return
 	end
-	M.stop()
 
 	vim.defer_fn(function()
 		M.start_speech_engine()
