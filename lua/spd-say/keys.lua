@@ -11,7 +11,6 @@ local function bind_carriage_return()
 		local last_char = last_word:sub(-1)
 		if not utils.is_trigger_char(last_char, opts.triggers) then
 			speak.say(last_word, pronunciation.words)
-			vim.notify("debug")
 		end
 
 		return "<CR>" -- vim handles the conversion for you
