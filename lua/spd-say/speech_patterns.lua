@@ -74,6 +74,10 @@ return {
 	},
 
 	normal_speech = {
+		-- short-hand substitutions
+		{ "i%.e%.", "that is" .. token_short },
+		{ "e%.g%.", "for example" .. token_short },
+
 		{ "%-%-", token_short },
 		{ "%s+%-%s+", "dash" },
 		{ "%s+-%s+", "minus" },

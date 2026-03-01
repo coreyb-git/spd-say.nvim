@@ -82,18 +82,23 @@ end
 vim.api.nvim_create_autocmd("ModeChanged", {
 	group = group,
 	callback = function()
+		local prior_mode = vim.v.event.old_mode
 		local mode = vim.api.nvim_get_mode().mode
 		if mode == "i" then
-			local prior_mode = vim.v.event.old_mode
 			if prior_mode:sub(1, 1) ~= "i" then -- if we weren't already in some form of insert mode, go quiet.
 				speak.stop()
 			end
 		end
 
 		if mode == "n" then
-			--			last_cursormove_row = vim.api.nvim_win_get_cursor(0)[1] -- Prevent rereading of entire paragraph.
-			last_cursormove_word = ""
-			last_cursormove_sentence = ""
+			if prior_mode == "i" then
+				ignore_next_cursormoved = true
+			end
+
+			handle_cursor_word()
+			speak.say(queued_text)
+			-- don't continuously repeat the current sentence after any little edit.
+			last_cursormove_sentence = utils.get_sentence_under_cursor()
 		end
 	end,
 })
@@ -101,6 +106,10 @@ vim.api.nvim_create_autocmd("ModeChanged", {
 vim.api.nvim_create_autocmd("CursorMoved", {
 	group = group,
 	callback = function()
+		if ignore_next_cursormoved then
+			ignore_next_cursormoved = false
+			return
+		end
 		if not opts.enabled then
 			return
 		end
